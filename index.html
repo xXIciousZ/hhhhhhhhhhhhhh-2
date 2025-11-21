@@ -26,7 +26,7 @@
         </div>
         <button class="search-btn" id="searchBtn">Search</button>
       </div>
-      <div id="results" class="results-area" style="margin-top: 20px; display: none;"></div>
+      <div id="results" class="results-area" style="display: none;"></div>
     </section>
 
     <section class="card">
@@ -55,10 +55,16 @@
         return;
       }
 
+      // Automatically prepend https:// if no protocol is present
+      let fullUrl = urlInput;
+      if (!/^https?:\/\//i.test(urlInput)) {
+        fullUrl = 'https://' + urlInput;
+      }
+
       // Extract domain from URL
       let domain;
       try {
-        const url = new URL(urlInput);
+        const url = new URL(fullUrl);
         domain = url.hostname.toLowerCase();
       } catch (e) {
         resultsDiv.style.display = 'block';

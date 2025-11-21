@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Awareness Test</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="topbar">
+    <nav class="nav-inner">
+      <a href="index.html">How to use</a>
+      <a href="phishing.html">What is phishing?</a>
+      <a href="quiz.html" class="active">Awareness Test</a>
+      <a href="about.html">About us</a>
+    </nav>
+  </div>
+
+  <main class="container">
+
+    <section class="card">
+      <div class="card-inner">
+        <h1>AWARENESS TEST</h1>
+        <p>Answer 10 questions: Is the shown website phishing? Choose YES or NO. Results will be recorded.</p>
+        <div id="quizArea"></div>
+        <div id="resultsArea" style="display: none;"></div>
+      </div>
+      <div class="side-column"></div>
+    </section>
+
+  </main>
+
+  <script>
+    let questions = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let answers = [];
+
+    // Hardcoded legitimate domains (real sites)
+    const legitimateDomains = ['google.com', 'amazon.com', 'facebook.com', 'twitter.com', 'youtube.com', 'wikipedia.org', 'github.com', 'stackoverflow.com', 'reddit.com', 'netflix.com'];
+
+    // Fetch and filter phishing domains
+    async function loadPhishingDomains() {
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt');
+        const text = await response.text();
+        let domains = text.split('\n').map(d => d.trim().toLowerCase()).filter(d => d);
+        // Filter out obvious phishing (dead giveaways)
+        domains = domains.filter(d => 
+          !d.includes('phish') && 
+          !d.includes('test') && 
+          !d.includes('0000') && 
+          !/^\d/.test(d) && // Doesn't start with digit
+          d.length >= 5 && d.length <= 50 // Reasonable length
+        );
+        return domains;
+      } catch (error) {
+        console.error('Failed to load phishing domains:', error);
+        return [];
+      }
+    }
+
+    // Generate 10 questions: 5 legit, 5 phishing, randomized
+    async function generateQuestions() {
+      const phishingDomains = await loadPhishingDomains();
+      if (phishingDomains.length < 5) {
+        alert('Not enough phishing domains loaded. Quiz may be incomplete.');
+      }
+      const selectedPhishing = phishingDomains.slice(0, 5); // Take first 5 after filtering
+      const selectedLegit = legitimateDomains.slice(0, 5);
+      
+      questions = [
+        ...selectedPhishing.map(d => ({ domain: d, isPhishing: true })),
+        ...selectedLegit.map(d => ({ domain: d, isPhishing: false }))
+      ];
+      // Shuffle
+      questions.sort(() => Math.random() - 0.5);
+    }
+
+    function displayQuestion() {
+      if (currentQuestion >= questions.length) {
+        showResults();
+        return;
+      }
+      const q = questions[currentQuestion];
+      document.getElementById('quizArea').innerHTML = `
+        <p><strong>Question ${currentQuestion + 1}/10:</strong> Is this website phishing?</p>
+        <p><a href="https://${q.domain}" target="_blank" onclick="return confirm('This is a test link. Proceed?')">https://${q.domain}</a></p>
+        <button onclick="answer(false)">NO (Legitimate)</button>
+        <button onclick="answer(true)">YES (Phishing)</button>
+      `;
+    }
+
+    function answer(isPhishingGuess) {
+      const q = questions[currentQuestion];
+      if (isPhishingGuess === q.isPhishing) score++;
+      answers.push({ question: currentQuestion + 1, domain: q.domain, correct: isPhishingGuess === q.isPhishing });
+      currentQuestion++;
+      displayQuestion();
+    }
+
+    function showResults() {
+      document.getElementById('quizArea').style.display = 'none';
+      document.getElementById('resultsArea').style.display = 'block';
+      document.getElementById('resultsArea').innerHTML = `
+        <h2>Test Complete!</h2>
+        <p>Your score: ${score}/10</p>
+        <p>Results saved. View all at <a href="results.html">results.html</a> (type URL directly).</p>
+      `;
+      // Save to localStorage
+      const results = JSON.parse(localStorage.getItem('quizResults') || '[]');
+      results.push({ score, total: 10, timestamp: new Date().toISOString(), answers });
+      localStorage.setItem('quizResults', JSON.stringify(results));
+    }
+
+    // Start quiz
+    generateQuestions().then(() => displayQuestion());
+  </script>
+
+</body>
+</html>

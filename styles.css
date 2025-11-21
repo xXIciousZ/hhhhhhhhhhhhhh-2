@@ -61,7 +61,10 @@ body{
 /* Search bar */
 .hero{
   display:flex;
+  flex-direction: column; /* Stack elements vertically */
   justify-content:center;
+  align-items: center; /* Center horizontally */
+  text-align: center; /* Center text if any */
   margin-bottom:36px;
 }
 
@@ -116,6 +119,8 @@ body{
   border-radius: 10px;
   background: var(--glass);
   box-shadow: 0 4px 12px rgba(3,8,22,0.4);
+  width: 100%;
+  max-width: 640px; /* Match search-wrap width for consistency */
 }
 
 .results-area p, #resultsArea p {
@@ -228,5 +233,6 @@ body{
 @media (max-width:520px){
   .card{padding:1.25rem}
   .search-btn, .quiz-btn {padding:8px 12px}
-  .container{margin-top:20px}
+  .container{margin-top:20px} /* Reduced to avoid nav overlap */
+  .hero{margin-bottom:20px}
 }

@@ -27,7 +27,7 @@
       resultsDiv.innerHTML = '<p>No results recorded yet.</p>';
     } else {
       resultsDiv.innerHTML = results.map((r, i) => `
-        <div style="border: 1px solid #ccc; margin: 10px 0; padding: 10px;">
+        <div class="result-item">
           <h3>Attempt ${i + 1}</h3>
           <p>Score: ${r.score}/${r.total}</p>
           <p>Timestamp: ${new Date(r.timestamp).toLocaleString()}</p>

@@ -37,45 +37,59 @@
     let score = 0;
     let answers = [];
 
-    // Hardcoded legitimate domains (real sites)
+    // Hardcoded legitimate domains (real, well-known sites)
     const legitimateDomains = ['google.com', 'amazon.com', 'facebook.com', 'twitter.com', 'youtube.com', 'wikipedia.org', 'github.com', 'stackoverflow.com', 'reddit.com', 'netflix.com'];
 
-    // Fetch and filter phishing domains
+    // Fetch and filter phishing domains for typosquatting or added-word mimics of common sites
     async function loadPhishingDomains() {
       try {
         const response = await fetch('https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt');
         const text = await response.text();
         let domains = text.split('\n').map(d => d.trim().toLowerCase()).filter(d => d);
-        // Filter out obvious phishing (dead giveaways)
-        domains = domains.filter(d => 
-          !d.includes('phish') && 
-          !d.includes('test') && 
-          !d.includes('0000') && 
-          !/^\d/.test(d) && // Doesn't start with digit
-          d.length >= 5 && d.length <= 50 // Reasonable length
-        );
-        return domains;
+        
+        // Filter for domains mimicking common legitimate sites (typosquatting or added words)
+        const filtered = [];
+        for (const legit of legitimateDomains) {
+          const base = legit.split('.')[0]; // e.g., "google" from "google.com"
+          const candidates = domains.filter(d => 
+            d.includes(base) && // Contains the base name
+            d !== legit && // Not exact match
+            !d.includes('phish') && 
+            !d.includes('test') && 
+            !d.includes('0000') && 
+            !/^\d/.test(d) && // Doesn't start with digit
+            d.length >= 5 && d.length <= 50 // Reasonable length
+          );
+          filtered.push(...candidates);
+        }
+        
+        // Remove duplicates and shuffle
+        const unique = [...new Set(filtered)];
+        unique.sort(() => Math.random() - 0.5);
+        return unique;
       } catch (error) {
         console.error('Failed to load phishing domains:', error);
         return [];
       }
     }
 
-    // Generate 10 questions: 5 legit, 5 phishing, randomized
+    // Generate 10 questions: 5 legit (randomized), 5 phishing (randomized from filtered)
     async function generateQuestions() {
       const phishingDomains = await loadPhishingDomains();
-      if (phishingDomains.length < 5) {
-        alert('Not enough phishing domains loaded. Quiz may be incomplete.');
-      }
-      const selectedPhishing = phishingDomains.slice(0, 5); // Take first 5 after filtering
-      const selectedLegit = legitimateDomains.slice(0, 5);
+      const selectedPhishing = phishingDomains.slice(0, 5); // Take first 5 after shuffle
+      const shuffledLegit = [...legitimateDomains].sort(() => Math.random() - 0.5);
+      const selectedLegit = shuffledLegit.slice(0, 5);
       
       questions = [
         ...selectedPhishing.map(d => ({ domain: d, isPhishing: true })),
         ...selectedLegit.map(d => ({ domain: d, isPhishing: false }))
       ];
-      // Shuffle
+      // Shuffle all questions
       questions.sort(() => Math.random() - 0.5);
+      
+      if (questions.length < 10) {
+        alert(`Only ${questions.length} questions generated due to limited data.`);
+      }
     }
 
     function displayQuestion() {
@@ -87,8 +101,8 @@
       document.getElementById('quizArea').innerHTML = `
         <p><strong>Question ${currentQuestion + 1}/10:</strong> Is this website phishing?</p>
         <p><a href="https://${q.domain}" target="_blank" onclick="return confirm('This is a test link. Proceed?')">https://${q.domain}</a></p>
-        <button onclick="answer(false)">NO (Legitimate)</button>
-        <button onclick="answer(true)">YES (Phishing)</button>
+        <button class="quiz-btn" onclick="answer(false)">NO (Legitimate)</button>
+        <button class="quiz-btn" onclick="answer(true)">YES (Phishing)</button>
       `;
     }
 

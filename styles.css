@@ -109,6 +109,20 @@ body{
   cursor:pointer;
 }
 
+/* Results area (for search and quiz) */
+.results-area, #resultsArea {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--glass);
+  box-shadow: 0 4px 12px rgba(3,8,22,0.4);
+}
+
+.results-area p, #resultsArea p {
+  margin: 0;
+  color: var(--muted);
+}
+
 /* Card Section */
 .card{
   background:rgba(255,255,255,0.03);
@@ -134,6 +148,27 @@ body{
   line-height:1.6;
 }
 
+.card a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Quiz buttons */
+.quiz-btn {
+  margin: 0 10px;
+  background: linear-gradient(180deg, var(--accent), #7b2e92);
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.quiz-btn:hover {
+  opacity: 0.9;
+}
+
 /* Decorative column (right) */
 .side-column{
   min-width:120px;
@@ -143,15 +178,55 @@ body{
   display:none;
 }
 
+/* Results page items */
+.result-item {
+  border: 1px solid var(--card);
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 15px;
+  background: var(--glass);
+  box-shadow: 0 4px 12px rgba(3,8,22,0.4);
+}
+
+.result-item h3 {
+  margin: 0 0 10px 0;
+  color: #fff;
+}
+
+.result-item p {
+  margin: 5px 0;
+  color: var(--muted);
+}
+
+.result-item details {
+  margin-top: 10px;
+}
+
+.result-item summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.result-item ul {
+  list-style: none;
+  padding: 0;
+}
+
+.result-item li {
+  margin: 5px 0;
+  color: var(--muted);
+}
+
 /* Responsive */
 @media (max-width:820px){
   .nav-inner{gap:1rem}
   .card{flex-direction:column}
   .side-column{display:none}
+  .quiz-btn { margin: 5px; padding: 8px 12px; }
 }
 
 @media (max-width:520px){
   .card{padding:1.25rem}
-  .search-btn{padding:8px 12px}
+  .search-btn, .quiz-btn {padding:8px 12px}
   .container{margin-top:20px}
 }

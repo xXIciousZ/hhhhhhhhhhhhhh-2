@@ -121,6 +121,7 @@ body{
   box-shadow: 0 4px 12px rgba(3,8,22,0.4);
   width: 100%;
   max-width: 640px; /* Match search-wrap width for consistency */
+  text-align: center; /* Center text in results */
 }
 
 .results-area p, #resultsArea p {
@@ -140,12 +141,12 @@ body{
 
 .card-inner{
   max-width:760px;
+  text-align: center; /* Center all text inside the card */
 }
 
 .card h1{
   margin:0 0 1rem 0;
   font-size:1.6rem;
-  text-align:center;
 }
 
 .card p{
@@ -191,6 +192,7 @@ body{
   padding: 15px;
   background: var(--glass);
   box-shadow: 0 4px 12px rgba(3,8,22,0.4);
+  text-align: center; /* Center text in result items */
 }
 
 .result-item h3 {

@@ -12,6 +12,7 @@
     <nav class="nav-inner">
       <a href="index.html" class="active">How to use</a>
       <a href="phishing.html">What is phishing?</a>
+      <a href="quiz.html">Awareness Test</a>
       <a href="about.html">About us</a>
     </nav>
   </div>
@@ -21,10 +22,11 @@
     <section class="hero">
       <div class="search-wrap">
         <div class="search-field">
-          <input type="url" placeholder="Paste URL here..." />
+          <input type="url" id="urlInput" placeholder="Paste URL here..." />
         </div>
-        <button class="search-btn">Search</button>
+        <button class="search-btn" id="searchBtn">Search</button>
       </div>
+      <div id="results" class="results-area" style="margin-top: 20px; display: none;"></div>
     </section>
 
     <section class="card">
@@ -39,6 +41,53 @@
     </section>
 
   </main>
+
+  <script>
+    let phishingDomains = null; // Cache the list
+
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const urlInput = document.getElementById('urlInput').value.trim();
+      const resultsDiv = document.getElementById('results');
+      
+      if (!urlInput) {
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = '<p style="color: red;">Please enter a URL.</p>';
+        return;
+      }
+
+      // Extract domain from URL
+      let domain;
+      try {
+        const url = new URL(urlInput);
+        domain = url.hostname.toLowerCase();
+      } catch (e) {
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = '<p style="color: red;">Invalid URL format.</p>';
+        return;
+      }
+
+      // Fetch phishing domains if not cached
+      if (!phishingDomains) {
+        try {
+          const response = await fetch('https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt');
+          if (!response.ok) throw new Error('Failed to fetch phishing database');
+          const text = await response.text();
+          phishingDomains = text.split('\n').map(d => d.trim().toLowerCase()).filter(d => d);
+        } catch (error) {
+          resultsDiv.style.display = 'block';
+          resultsDiv.innerHTML = '<p style="color: red;">Error loading phishing database. Try again later.</p>';
+          return;
+        }
+      }
+
+      // Check if domain is in the list
+      const isPhishing = phishingDomains.includes(domain);
+      resultsDiv.style.display = 'block';
+      resultsDiv.innerHTML = isPhishing 
+        ? '<p style="color: red;">⚠️ Phishing detected! This domain is in our database.</p>' 
+        : '<p style="color: green;">✅ Appears safe. No match in our phishing database.</p>';
+    });
+  </script>
 
 </body>
 </html>

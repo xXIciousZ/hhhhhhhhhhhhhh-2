@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Test Results</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <main class="container">
+
+    <section class="card">
+      <div class="card-inner">
+        <h1>QUIZ RESULTS</h1>
+        <div id="resultsList"></div>
+      </div>
+      <div class="side-column"></div>
+    </section>
+
+  </main>
+
+  <script>
+    const results = JSON.parse(localStorage.getItem('quizResults') || '[]');
+    const resultsDiv = document.getElementById('resultsList');
+    if (results.length === 0) {
+      resultsDiv.innerHTML = '<p>No results recorded yet.</p>';
+    } else {
+      resultsDiv.innerHTML = results.map((r, i) => `
+        <div style="border: 1px solid #ccc; margin: 10px 0; padding: 10px;">
+          <h3>Attempt ${i + 1}</h3>
+          <p>Score: ${r.score}/${r.total}</p>
+          <p>Timestamp: ${new Date(r.timestamp).toLocaleString()}</p>
+          <details>
+            <summary>Details</summary>
+            <ul>${r.answers.map(a => `<li>Q${a.question}: ${a.domain} - ${a.correct ? 'Correct' : 'Incorrect'}</li>`).join('')}</ul>
+          </details>
+        </div>
+      `).join('');
+    }
+  </script>
+
+</body>
+</html>
